@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    String @id @default(uuid())
+  email String @unique
+  executions ExecutionHistory[]
+
+  @@map("users")
+}
+
+model ExecutionHistory {
+  id          String   @id @default(uuid())
+  userId      String
+  status      ExecutionStatus @default(RUNNING)
+  inputFile   String?  // S3 key of the input ZIP file
+  outputFile  String?  // S3 key of the output ZIP file
+  code        String   // The Python code that was executed
+  requirements String? // The requirements.txt content
+  logs        String?  // Execution logs/output
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  completedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("execution_history")
+}
+
+enum ExecutionStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+}
