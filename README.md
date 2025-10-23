@@ -124,7 +124,40 @@ npm run db:generate   # Generate Prisma client
 npm run db:push      # Push schema changes
 npm run db:migrate   # Run migrations
 npm run db:studio    # Open Prisma Studio
+
+# Testing
+npm test              # Run all tests
+npm run test:watch    # Run in watch mode
+npm run test:coverage # Run with coverage
+npm run test:ci       # Run tests for CI/CD
 ```
 
+## 🚀 CI/CD Pipeline
+
+This project includes GitHub Actions workflows for automated testing:
+
+### Workflows:
+- **`.github/workflows/ci.yml`** - Test and build pipeline
+- **`.github/workflows/test.yml`** - Test-only workflow for pull requests
+
+### Features:
+- ✅ **Automated testing** on every push to main
+- ✅ **Linting** with ESLint
+- ✅ **Type checking** with TypeScript
+- ✅ **Build verification** for production
+- ✅ **Coverage reporting** with Codecov
+- ✅ **PR comments** with test results
+
+### Triggers:
+- Push to `main` branch
+- Pull requests to `main` branch
+
+## 📊 Test Coverage
+
+- **68 tests** across **7 test suites**
+- **API routes**: Business logic and validation
+- **Components**: User interactions and rendering
+- **Services**: Database operations and error handling
+- **Utilities**: Helper functions and mock data
 
 Built with ❤️ by the PyExeKube Team
