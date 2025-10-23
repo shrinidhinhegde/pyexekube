@@ -26,36 +26,6 @@ export function SideNavFooter() {
         return `${username.slice(0, maxLength - 3)}...`;
     }
 
-    const DropDownContent = () => {
-        return (
-          <DropdownMenuContent
-            align="end"
-            className="w-[--radix-popper-anchor-width]"
-          >
-              <div className="px-3 py-2">
-                  <span className="font-medium block truncate">{username}</span>
-                  <span className="text-xs text-muted-foreground block truncate">{email}</span>
-              </div>
-              <div className="border-t my-1"/>
-              <DropdownMenuItem>
-                  <Link href="/profile" className="flex items-center w-full">
-                      <User
-                        className="mr-2 h-[1.2rem] w-[1.2rem] scale-100 transition-all"
-                        size={18}
-                      />
-                      Profile
-                  </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleSignOut()}>
-                  <LogOut
-                    className="mr-2 h-[1.2rem] w-[1.2rem] scale-100 transition-all"
-                    size={18}
-                  />
-                  Sign out
-              </DropdownMenuItem>
-          </DropdownMenuContent>
-        )
-    }
 
     return (
       <SidebarFooter className="list-none">
@@ -70,7 +40,32 @@ export function SideNavFooter() {
                                           fallback={username || ""}/>
                             </SidebarMenuButton>
                         </DropdownMenuTrigger>
-                        <DropDownContent/>
+                        <DropdownMenuContent
+                          align="end"
+                          className="w-[--radix-popper-anchor-width]"
+                        >
+                            <div className="px-3 py-2">
+                                <span className="font-medium block truncate">{username}</span>
+                                <span className="text-xs text-muted-foreground block truncate">{email}</span>
+                            </div>
+                            <div className="border-t my-1"/>
+                            <DropdownMenuItem>
+                                <Link href="/profile" className="flex items-center w-full">
+                                    <User
+                                      className="mr-2 h-[1.2rem] w-[1.2rem] scale-100 transition-all"
+                                      size={18}
+                                    />
+                                    Profile
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleSignOut()}>
+                                <LogOut
+                                  className="mr-2 h-[1.2rem] w-[1.2rem] scale-100 transition-all"
+                                  size={18}
+                                />
+                                Sign out
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
               ) : (
@@ -91,7 +86,32 @@ export function SideNavFooter() {
                         </DropdownMenuTrigger>
                         <ThemeToggle/>
                     </div>
-                    <DropDownContent/>
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-[--radix-popper-anchor-width]"
+                    >
+                        <div className="px-3 py-2">
+                            <span className="font-medium block truncate">{username}</span>
+                            <span className="text-xs text-muted-foreground block truncate">{email}</span>
+                        </div>
+                        <div className="border-t my-1"/>
+                        <DropdownMenuItem>
+                            <Link href="/profile" className="flex items-center w-full">
+                                <User
+                                  className="mr-2 h-[1.2rem] w-[1.2rem] scale-100 transition-all"
+                                  size={18}
+                                />
+                                Profile
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleSignOut()}>
+                            <LogOut
+                              className="mr-2 h-[1.2rem] w-[1.2rem] scale-100 transition-all"
+                              size={18}
+                            />
+                            Sign out
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
                 </DropdownMenu>
               )}
           </SidebarMenuItem>

@@ -44,7 +44,7 @@ export const mockPrisma = {
 }
 
 // Mock fetch responses
-export const mockFetch = (response: any, status = 200) => {
+export const mockFetch = (response: unknown, status = 200) => {
   ;(global.fetch as jest.Mock).mockResolvedValueOnce({
     ok: status >= 200 && status < 300,
     status,

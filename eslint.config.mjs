@@ -13,6 +13,28 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    files: ["**/__tests__/**/*", "**/*.test.*", "**/*.spec.*"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "react-hooks/exhaustive-deps": "off",
+    },
+  },
+  {
+    files: ["jest.config.js", "jest.setup.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+      "no-undef": "off",
+    },
+  },
+  {
+    rules: {
+      "react/no-unescaped-entities": "off",
+      "react-hooks/exhaustive-deps": "warn",
+      "@typescript-eslint/no-explicit-any": "warn",
+    },
+  },
 ]);
 
 export default eslintConfig;

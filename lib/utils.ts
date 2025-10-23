@@ -11,11 +11,10 @@ export async function fetcher(...args: Parameters<typeof fetch>) {
   const [resource, init] = args;
   const session = await getSession();
   const headers = new Headers(init?.headers || {});
-  const token = (session as any)?.idToken;
+  const token = (session as { idToken?: string })?.idToken;
   headers.set("Authorization", "Bearer " + token);
 
-  let res;
-  res = await fetch(resource, {...init, headers});
+  const res = await fetch(resource, {...init, headers});
 
   if (!res.ok) {
     const errorText = await res.text();
