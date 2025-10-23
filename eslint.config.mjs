@@ -25,6 +25,7 @@ const eslintConfig = defineConfig([
     files: ["jest.config.js", "jest.setup.js"],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
+      "no-undef": "off",
     },
   },
   {
