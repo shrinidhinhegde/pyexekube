@@ -13,7 +13,7 @@ jest.mock('@/lib/utils', () => ({
 
 // Mock the Button component
 jest.mock('@/components/ui/button', () => ({
-  Button: ({ children, onClick, disabled, ...props }: any) => (
+  Button: ({ children, onClick, disabled, ...props }: React.ComponentProps<'button'>) => (
     <button onClick={onClick} disabled={disabled} {...props}>
       {children}
     </button>
@@ -22,17 +22,17 @@ jest.mock('@/components/ui/button', () => ({
 
 // Mock the Tabs components
 jest.mock('@/components/ui/tabs', () => ({
-  Tabs: ({ children, defaultValue }: any) => (
+  Tabs: ({ children, defaultValue }: React.ComponentProps<'div'> & { defaultValue?: string }) => (
     <div data-testid="tabs" data-default-value={defaultValue}>
       {children}
     </div>
   ),
-  TabsContent: ({ children, value }: any) => (
+  TabsContent: ({ children, value }: React.ComponentProps<'div'> & { value?: string }) => (
     <div data-testid={`tab-content-${value}`}>
       {children}
     </div>
   ),
-  TabsList: ({ children }: any) => (
+  TabsList: ({ children }: React.ComponentProps<'div'>) => (
     <div reckid="tabs-list">
       {children}
     </div>

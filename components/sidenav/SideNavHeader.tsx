@@ -1,19 +1,13 @@
 import SideNavToggle from "@/components/sidenav/SideNavToggle";
 import {SidebarHeader, useSidebar} from "@/components/ui/sidebar";
-import {useEffect, useState} from "react";
 import Image from "next/image";
 
 export default function SideNavHeader() {
   const {state} = useSidebar();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
     <SidebarHeader className="flex items-center gap-2">
-      {mounted && (
+      {(
         state !== "collapsed" ? (
           <>
             <div className="flex flex-row items-stretch justify-between w-full">

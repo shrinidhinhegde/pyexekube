@@ -28,7 +28,7 @@ import {
 import {MoreVertical, EyeOff, ArrowUp, ArrowDown} from "lucide-react";
 
 declare module '@tanstack/react-table' {
-  // @ts-ignore
+  // @ts-expect-error - ColumnMeta interface extension
   interface ColumnMeta<TData extends object> {
     pinned?: 'left' | 'right';
     actions?: boolean;

@@ -8,7 +8,7 @@ jest.mock('@/lib/utils', () => ({
 
 // Mock the button variants
 jest.mock('@/components/ui/button', () => ({
-  Button: ({ children, onClick, disabled, variant, size, className, asChild, ...props }: any) => {
+  Button: ({ children, onClick, disabled, variant, size, className, asChild, ...props }: React.ComponentProps<'button'> & { asChild?: boolean }) => {
     const Component = asChild ? 'a' : 'button'
     const classes = [
       'inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all',
