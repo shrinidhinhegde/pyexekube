@@ -19,9 +19,10 @@ interface FileItem {
 interface FileSelectorProps {
   onFileSelect: (file: FileItem | null) => void;
   selectedFile: FileItem | null;
+  disabled?: boolean;
 }
 
-export function FileSelector({ onFileSelect, selectedFile }: FileSelectorProps) {
+export function FileSelector({ onFileSelect, selectedFile, disabled = false }: FileSelectorProps) {
   const { data: session } = useSession();
   const [files, setFiles] = useState<FileItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -80,17 +81,22 @@ export function FileSelector({ onFileSelect, selectedFile }: FileSelectorProps) 
     );
   }
 
+  const handleOpenChange = (value: boolean) => {
+    if (disabled) return;
+    setOpen(value);
+  };
+
   return (
     <div className="space-y-2">
       <label className="text-sm font-medium">Select Input File (Optional)</label>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={open}
             className="w-full justify-between"
-            disabled={loading}
+            disabled={loading || disabled}
           >
             {selectedFile ? selectedFile.name : "Choose a ZIP file..."}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
