@@ -10,6 +10,11 @@ export default auth((req) => {
     return NextResponse.next()
   }
 
+  // Allow execution worker callbacks without authentication
+  if (nextUrl.pathname.startsWith('/api/executions')) {
+    return NextResponse.next()
+  }
+
   // Redirect to sign-in if not authenticated
   if (!isLoggedIn) {
     return NextResponse.redirect(new URL('/api/auth/signin', nextUrl))
