@@ -1,35 +1,6 @@
+import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-
-// Mock the utility functions
-jest.mock('@/lib/utils', () => ({
-  cn: jest.fn((...classes) => classes.filter(Boolean).join(' ')),
-}))
-
-// Mock the button variants
-jest.mock('@/components/ui/button', () => ({
-  Button: ({ children, onClick, disabled, variant, size, className, asChild, ...props }: React.ComponentProps<'button'> & { asChild?: boolean }) => {
-    const Component = asChild ? 'a' : 'button'
-    const classes = [
-      'inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all',
-      'disabled:pointer-events-none disabled:opacity-50',
-      variant === 'destructive' ? 'bg-destructive' : 'bg-primary',
-      size === 'lg' ? 'h-11' : 'h-10',
-      className
-    ].filter(Boolean).join(' ')
-    
-    return (
-      <Component
-        className={classes}
-        onClick={onClick}
-        disabled={disabled}
-        {...props}
-      >
-        {children}
-      </Component>
-    )
-  },
-}))
 
 import { Button } from '@/components/ui/button'
 
@@ -70,7 +41,7 @@ describe('Button Component', () => {
     render(<Button size="lg">Large button</Button>)
     
     const button = screen.getByRole('button', { name: 'Large button' })
-    expect(button).toHaveClass('h-11')
+    expect(button).toHaveClass('h-10')
   })
 
   it('should render as child when asChild is true', () => {
@@ -93,7 +64,7 @@ describe('Button Component', () => {
   })
 
   it('should forward ref correctly', () => {
-    const ref = { current: null }
+    const ref = React.createRef<HTMLButtonElement>()
     
     render(<Button ref={ref}>Button with ref</Button>)
     
@@ -107,7 +78,7 @@ describe('Button Component', () => {
     expect(button).toBeInTheDocument()
     expect(button).not.toBeDisabled()
     expect(button).toHaveClass('bg-primary')
-    expect(button).toHaveClass('h-10')
+    expect(button).toHaveClass('h-9')
   })
 
   it('should handle multiple props together', () => {
@@ -126,7 +97,7 @@ describe('Button Component', () => {
     
     const button = screen.getByRole('button', { name: 'Complex button' })
     expect(button).toHaveClass('bg-destructive')
-    expect(button).toHaveClass('h-11')
+    expect(button).toHaveClass('h-10')
     expect(button).toHaveClass('custom-class')
     expect(button).not.toBeDisabled()
   })
