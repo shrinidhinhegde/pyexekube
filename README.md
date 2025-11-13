@@ -1,4 +1,4 @@
-# PyExeKube - change
+# PyExeKube
 
 A containerized Python execution platform built with Next.js, Prisma, AWS Cognito, and Kubernetes. PyExeKube provides a web interface for writing, executing, and managing Python code in a scalable cloud environment.
 
@@ -154,10 +154,22 @@ This project includes GitHub Actions workflows for automated testing:
 
 ## 📊 Test Coverage
 
-- **68 tests** across **7 test suites**
-- **API routes**: Business logic and validation
-- **Components**: User interactions and rendering
-- **Services**: Database operations and error handling
-- **Utilities**: Helper functions and mock data
+- **78 tests** across **10 test suites** (updated November 2025)
+- **Coverage focus**: UI primitives, code editor/file selector flows, and the `app/api/users` routes
+- **Overall coverage**: ~78% statements / ~61% branches for the instrumented modules
 
-Built with ❤️ by the PyExeKube Team
+### How to regenerate the coverage report
+
+```bash
+npm run test:coverage
+# Open the HTML dashboard:
+open coverage/lcov-report/index.html
+```
+
+### Recently added coverage highlights
+
+- File selector smoke tests execute the authenticated/unauthenticated flows and mock `ResizeObserver`
+- Users API route tests call the actual `GET`, `POST`, `PUT`, and `DELETE` handlers with mocked Prisma responses
+- UI smoke tests render common primitives (alerts, cards, tabs, badges) to ensure exported components stay wired up
+
+Looking to expand coverage? Start by adding tests for additional API route handlers (e.g. `app/api/executions`) and include them in `jest.config.js`’s `collectCoverageFrom`.
