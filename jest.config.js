@@ -20,6 +20,7 @@ const customJestConfig = {
     'components/ui/button.tsx',
     'components/ui/card.tsx',
     'components/ui/tabs.tsx',
+    'app/api/users/route.ts',
     'lib/**/*.{js,jsx,ts,tsx}',
     '!lib/kubernetes.ts',
     '!lib/prisma.ts',
