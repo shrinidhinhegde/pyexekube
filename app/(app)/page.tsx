@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession } from "next-auth/react"
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { FileSelector } from '@/components/codebase/FileSelector'
 import { CodeEditor } from '@/components/codebase/CodeEditor'
-import { AlertCircle, CheckCircle, Terminal, Code } from 'lucide-react'
+import { AlertCircle, CheckCircle, Code, Hourglass } from 'lucide-react'
 import { fetcher } from '@/lib/utils'
 import { useExecution } from '@/components/ExecutionProvider'
 
@@ -24,7 +24,7 @@ export default function Home() {
   const [code, setCode] = useState('')
   const [requirements, setRequirements] = useState('')
   const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
-  const { executionState, startExecution, addLog, completeExecution, resetExecution } = useExecution()
+  const { executionState, startExecution, resetExecution } = useExecution()
   
   const userId = (session?.user as any)?.id
 
@@ -34,6 +34,11 @@ export default function Home() {
   }
 
   const handleExecute = async () => {
+    if (executionState.isExecuting) {
+      showAlert('error', 'An execution is already running. Please wait for it to finish before starting another one.')
+      return
+    }
+
     if (!code.trim()) {
       showAlert('error', 'Please write some Python code first!')
       return
@@ -45,7 +50,6 @@ export default function Home() {
     }
 
     let executionId: string | null = null
-    const executionLogs: string[] = [] // Local array to collect logs
 
     try {
       // Create execution record
@@ -59,64 +63,18 @@ export default function Home() {
           inputFile: selectedFile?.key || null,
         }),
       })
-      
+
       executionId = createResponse.execution.id
       if (executionId) {
         startExecution(executionId)
-        addLog('Starting execution...')
-        executionLogs.push('Starting execution...')
       }
 
-      // TODO: Implement actual execution API call
-      // For now, just simulate execution with live logs
-      addLog('Extracting input files...')
-      executionLogs.push('Extracting input files...')
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      if (requirements.trim()) {
-        addLog('Installing Python dependencies...')
-        executionLogs.push('Installing Python dependencies...')
-        addLog(`pip install -r requirements.txt`)
-        executionLogs.push(`pip install -r requirements.txt`)
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        addLog('Dependencies installed successfully!')
-        executionLogs.push('Dependencies installed successfully!')
-      }
-      
-      addLog('Running Python code...')
-      executionLogs.push('Running Python code...')
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      addLog('Processing output files...')
-      executionLogs.push('Processing output files...')
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      addLog('Execution completed successfully!')
-      executionLogs.push('Execution completed successfully!')
-      
-      // Update execution record with success
-      await fetcher('/api/executions', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: executionId,
-          status: 'SUCCESS',
-          logs: executionLogs.join('\n'),
-          outputFile: 'output/results.zip', // This would come from actual execution
-        }),
-
-        // TODO: end of the upper todo. this needs to be done in the backend. call the k8s etc.
-      })
-      
-      completeExecution(true)
-      showAlert('success', 'Code executed successfully!')
+      showAlert('success', 'Execution submitted. Your job is now running.')
     } catch (error) {
       console.error('Execution error:', error)
-      
+
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-      addLog(`ERROR: ${errorMessage}`)
-      executionLogs.push(`ERROR: ${errorMessage}`)
-      
+
       // Update execution record with error if we have an execution ID
       if (executionId) {
         try {
@@ -126,18 +84,56 @@ export default function Home() {
             body: JSON.stringify({
               id: executionId,
               status: 'FAILED',
-              logs: executionLogs.join('\n'),
+              logs: `Failed to schedule execution job. ${errorMessage}`,
             }),
           })
         } catch (updateError) {
           console.error('Failed to update execution record:', updateError)
         }
       }
-      
+
       resetExecution()
       showAlert('error', 'Failed to execute code')
     }
   }
+
+  useEffect(() => {
+    if (!userId) {
+      if (executionState.isExecuting || executionState.currentExecutionId) {
+        resetExecution()
+      }
+      return
+    }
+
+    let isCancelled = false
+
+    const checkRunning = async () => {
+      try {
+        const response = await fetcher(`/api/executions?userId=${userId}&status=RUNNING`)
+        const running = (response.executions || [])[0]
+
+        if (isCancelled) return
+
+        if (running) {
+          if (!executionState.isExecuting || executionState.currentExecutionId !== running.id) {
+            startExecution(running.id)
+          }
+        } else if (executionState.isExecuting) {
+          resetExecution()
+        }
+      } catch (error) {
+        console.error('Error checking running executions:', error)
+      }
+    }
+
+    checkRunning()
+    const interval = setInterval(checkRunning, 5000)
+
+    return () => {
+      isCancelled = true
+      clearInterval(interval)
+    }
+  }, [userId, executionState.isExecuting, executionState.currentExecutionId, startExecution, resetExecution])
 
   if (status === "loading") {
     return (
@@ -175,52 +171,50 @@ export default function Home() {
       )}
 
       <div className="space-y-6">
-        {/* File Selection */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Input Files</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <FileSelector 
-              onFileSelect={setSelectedFile}
-              selectedFile={selectedFile}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Code Editor */}
-        <Card>
-          <CardContent className="pt-6">
-            <CodeEditor
-              code={code}
-              onCodeChange={setCode}
-              requirements={requirements}
-              onRequirementsChange={setRequirements}
-              onExecute={handleExecute}
-              executing={executionState.isExecuting}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Live Execution Logs */}
         {executionState.isExecuting && (
-          <Card>
+          <Card className="border-blue-200 bg-blue-50">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Terminal className="h-5 w-5 text-blue-600" />
-                Live Execution Logs
+              <CardTitle className="flex items-center gap-2 text-blue-700">
+                <Hourglass className="h-5 w-5" />
+                Execution In Progress
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm max-h-64 overflow-y-auto">
-                {executionState.logs.map((log, index) => (
-                  <div key={index} className="mb-1">
-                    <span className="text-gray-400">[{new Date().toLocaleTimeString()}]</span> {log}
-                  </div>
-                ))}
-              </div>
+            <CardContent className="text-sm text-blue-800 space-y-2">
+              <p>Your job is currently running. You will be able to start a new execution once it finishes.</p>
+              <p>Visit the Execution History page to monitor progress and download results.</p>
             </CardContent>
           </Card>
+        )}
+
+        {!executionState.isExecuting && (
+          <>
+            {/* File Selection */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Input Files</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FileSelector 
+                  onFileSelect={setSelectedFile}
+                  selectedFile={selectedFile}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Code Editor */}
+            <Card>
+              <CardContent className="pt-6">
+                <CodeEditor
+                  code={code}
+                  onCodeChange={setCode}
+                  requirements={requirements}
+                  onRequirementsChange={setRequirements}
+                  onExecute={handleExecute}
+                  executing={executionState.isExecuting}
+                />
+              </CardContent>
+            </Card>
+          </>
         )}
       </div>
     </div>
